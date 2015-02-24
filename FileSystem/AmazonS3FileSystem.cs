@@ -8,7 +8,7 @@
 
     public class AmazonS3FileSystem
     {
-        private readonly AmazonS3 _client;
+        private readonly IAmazonS3 _client;
         private string _bucketName;
 
         #region Constructor
@@ -34,8 +34,10 @@
             try
             {
                 var response = _client.GetObjectMetadata(new GetObjectMetadataRequest()
-                   .WithBucketName(_bucketName)
-                   .WithKey(GetKey(path, fileName)));
+                {
+                    BucketName = _bucketName,
+                    Key = GetKey(path, fileName)
+                });
 
                 return true;
             }
@@ -68,15 +70,15 @@
             // Prepare put request            
             var request = new PutObjectRequest();
 
-            request.WithBucketName(_bucketName)
-                .WithCannedACL(S3CannedACL.PublicRead)
-                .WithFilePath(localFile)
-                .WithKey(GetKey(path, fileName))
-                .WithTimeout(-1);
+            request.BucketName  =_bucketName;
+            request.CannedACL = (S3CannedACL.PublicRead);
+            request.FilePath = (localFile);
+            request.Key = (GetKey(path, fileName));
+            //request.Timeout = (-1);
 
             // Put file
             var response = _client.PutObject(request);
-            response.Dispose();
+            //response.Dispose();
         }
 
         /// <summary>
@@ -88,12 +90,12 @@
         {
             // Prepare delete request
             var request = new DeleteObjectRequest();
-            request.WithBucketName(_bucketName)
-                .WithKey(GetKey(path, fileName));
+            request.BucketName= (_bucketName);
+            request.Key = (GetKey(path, fileName));
 
             // Delete file
             var response = _client.DeleteObject(request);
-            response.Dispose();
+            //response.Dispose();
         }
 
         /// <summary>
@@ -104,7 +106,8 @@
         {
             // Get all object with specified prefix
             var listRequest = new ListObjectsRequest();
-            listRequest.WithBucketName(_bucketName).WithPrefix(prefix);
+            listRequest.BucketName = (_bucketName);
+            listRequest.Prefix = (prefix);
 
             var deleteRequest = new DeleteObjectsRequest();
             deleteRequest.BucketName = _bucketName;
@@ -131,10 +134,10 @@
             while (listRequest != null);
 
             // Delete all the object with specified prefix.
-            if (deleteRequest.Keys.Count > 0)
+            if (deleteRequest.Objects.Count > 0)
             {
                 var deleteResponse = _client.DeleteObjects(deleteRequest);
-                deleteResponse.Dispose();
+                //deleteResponse.Dispose();
             }
         }
 
