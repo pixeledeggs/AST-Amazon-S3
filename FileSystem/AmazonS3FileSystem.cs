@@ -15,7 +15,7 @@
 
         public AmazonS3FileSystem(string accessKey, string secretKey, string bucketName)
         {
-            _client = AWSClientFactory.CreateAmazonS3Client(accessKey, secretKey);
+            _client = AWSClientFactory.CreateAmazonS3Client(accessKey, secretKey, RegionEndpoint.EUWest1);
             _bucketName = bucketName;
         }
 
